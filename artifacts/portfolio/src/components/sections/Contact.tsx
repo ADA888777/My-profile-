@@ -1,212 +1,474 @@
-import { useRef, useState } from "react";
-import { FadeIn } from "@/components/ui/fade-in";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Send, Mail, User, MessageSquare, CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import "@/styles/contact-footer.css";
 
 /*
-  The inbox address is assembled at runtime instead of being written as one
-  plain string, so simple address scrapers that crawl the repo or the built
-  JS bundle do not pick it up.
+The inbox address is assembled at runtime instead of sitting in the source
+as one plain string, so simple scrapers that crawl the repository or the
+built JS bundle do not harvest it.
 */
-const MAILBOX = ["shamkory", "930"].join("");
+const MAILBOX = ["hshmhshm", "72"].join("");
 const MAIL_DOMAIN = ["gmail", "com"].join(".");
 const getReceiver = () => MAILBOX + "@" + MAIL_DOMAIN;
 
-const MAX_NAME = 80;
-const MAX_EMAIL = 120;
-const MAX_MESSAGE = 2000;
-/* Minimum time a real human needs to fill the form (anti-bot). */
+const TELEGRAM_URL = "https://t.me/Ada778877";
+
+const LIMITS = { name: 80, email: 120, message: 2000 };
+/* Shortest time a real person needs to fill the brief (anti-bot). */
 const MIN_FILL_MS = 2500;
 
+const PROJECT_TYPES = [
+  "موقع تعريفي",
+  "متجر إلكتروني",
+  "تطبيق ويب",
+  "مراجعة أمنية / اختبار اختراق",
+  "هوية بصرية وتصميم",
+  "تسويق رقمي",
+  "شيء آخر",
+];
+
+const BUDGETS = [
+  "أقل من 2,000 ر.س",
+  "من 2,000 إلى 5,000 ر.س",
+  "من 5,000 إلى 15,000 ر.س",
+  "أكثر من 15,000 ر.س",
+];
+
+type FieldName = "name" | "email" | "projectType" | "message";
+
+const FIELD_IDS: Record<FieldName, string> = {
+  name: "ada-name",
+  email: "ada-email",
+  projectType: "ada-type",
+  message: "ada-message",
+};
+
+/*
+Deliberately regex-free e-mail check: no backtracking surprises and it is
+easy to read. The server side (FormSubmit) validates again.
+*/
+function looksLikeEmail(value: string) {
+  const v = value.trim();
+  if (v.length < 6 || v.indexOf(" ") !== -1) return false;
+  const at = v.indexOf("@");
+  if (at < 1 || at !== v.lastIndexOf("@")) return false;
+  const dot = v.lastIndexOf(".");
+  return dot > at + 1 && dot < v.length - 2;
+}
+
+const RULES: Record<FieldName, { message: string; isValid: (value: string) => boolean }> = {
+  name: { message: "اكتب اسمك من فضلك", isValid: (v) => v.trim().length >= 2 },
+  email: { message: "اكتب بريداً إلكترونياً صحيحاً", isValid: looksLikeEmail },
+  projectType: { message: "اختر نوع المشروع", isValid: (v) => v !== "" },
+  message: { message: "اكتب سطرين على الأقل عن مشروعك", isValid: (v) => v.trim().length >= 15 },
+};
+
+const EMPTY_FORM = { name: "", email: "", projectType: "", budget: "", message: "" };
+
+type FormValues = typeof EMPTY_FORM;
+type AnyFieldEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+
 export function Contact() {
-  const { toast } = useToast();
+  const [values, setValues] = useState<FormValues>(EMPTY_FORM);
+  const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  /* Honeypot: hidden from humans, usually filled in by bots. */
+  const [status, setStatus] = useState("");
+  /* Honeypot: invisible to humans, usually filled in by bots. */
   const [honey, setHoney] = useState("");
   const mountedAt = useRef(Date.now());
+  const successHeading = useRef<HTMLHeadingElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /* Move focus to the confirmation so screen readers land on it. */
+  useEffect(() => {
+    if (submitted) successHeading.current?.focus();
+  }, [submitted]);
+
+  const validate = (field: FieldName, value: string) => {
+    const rule = RULES[field];
+    const isValid = rule.isValid(value);
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (isValid) {
+        delete next[field];
+      } else {
+        next[field] = rule.message;
+      }
+      return next;
+    });
+    return isValid;
+  };
+
+  const handleChange = (field: keyof FormValues) => (event: AnyFieldEvent) => {
+    const value = event.target.value;
+    setValues((prev) => ({ ...prev, [field]: value }));
+    if (field !== "budget" && errors[field as FieldName]) {
+      validate(field as FieldName, value);
+    }
+  };
+
+  const handleBlur = (field: FieldName) => (event: AnyFieldEvent) => {
+    validate(field, event.target.value);
+  };
+
+  const resetForm = () => {
+    setValues(EMPTY_FORM);
+    setErrors({});
+    setStatus("");
+    setHoney("");
+    mountedAt.current = Date.now();
+    setSubmitted(false);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (isSubmitting) return;
+    setStatus("");
 
-    /* Silently drop obvious bot submissions. */
+    const order: FieldName[] = ["name", "email", "projectType", "message"];
+    const nextErrors: Partial<Record<FieldName, string>> = {};
+    order.forEach((field) => {
+      if (!RULES[field].isValid(values[field])) nextErrors[field] = RULES[field].message;
+    });
+    setErrors(nextErrors);
+
+    const firstInvalid = order.find((field) => nextErrors[field]);
+    if (firstInvalid) {
+      document.getElementById(FIELD_IDS[firstInvalid])?.focus();
+      return;
+    }
+
+    /* Drop obvious bot submissions without sending them anywhere. */
     if (honey.trim() !== "" || Date.now() - mountedAt.current < MIN_FILL_MS) {
       setSubmitted(true);
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${getReceiver()}`, {
+      const response = await fetch("https://formsubmit.co/ajax/" + getReceiver(), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          name: formData.name.trim().slice(0, MAX_NAME),
-          email: formData.email.trim().slice(0, MAX_EMAIL),
-          message: formData.message.trim().slice(0, MAX_MESSAGE),
-          _subject: `رسالة جديدة من ${formData.name.trim()} - موقع جود عبد الفتاح`,
+          name: values.name.trim().slice(0, LIMITS.name),
+          email: values.email.trim().slice(0, LIMITS.email),
+          project_type: values.projectType,
+          budget: values.budget || "غير محددة",
+          message: values.message.trim().slice(0, LIMITS.message),
+          _subject: "موجز مشروع جديد من " + values.name.trim(),
           _template: "table",
-          _honey: "",
           _captcha: "false",
         }),
       });
-
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        throw new Error("فشل الإرسال");
-      }
+      if (!response.ok) throw new Error("send failed");
+      setValues(EMPTY_FORM);
+      setSubmitted(true);
     } catch {
-      toast({
-        title: "حدث خطأ أثناء الإرسال",
-        description: "يرجى المحاولة مرة أخرى أو التواصل مباشرة عبر البريد الإلكتروني.",
-        variant: "destructive",
-      });
+      setStatus("تعذّر الإرسال الآن. جرّب مرة أخرى، أو راسلني على تليجرام مباشرة.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section id="contact" className="py-24 relative bg-black/40 border-t border-white/5">
-      <div className="container mx-auto px-4 md:px-6">
-        <FadeIn className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-display font-bold inline-block relative">
+    <section id="contact" className="ada-ct" aria-labelledby="contact-title">
+      {/* Shared gradient used by the icons in this section. */}
+      <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
+        <defs>
+          <linearGradient id="ada-g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#a78bfa" />
+            <stop offset="55%" stopColor="#7c3bed" />
+            <stop offset="100%" stopColor="#5b21b6" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <div className="wrap">
+        <div className="head">
+          <span className="eyebrow">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-3.4A8.4 8.4 0 1 1 21 11.5Z" />
+            </svg>
             تواصل معي
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1 w-1/2 bg-primary rounded-full" aria-hidden="true"></div>
+          </span>
+          <h2 id="contact-title" className="h2">
+            عندك مشروع؟ <b>خلّنا نبدأ</b>
           </h2>
-        </FadeIn>
+          <p className="sub">
+            املأ الموجز في دقيقة، وأرجع لك بنطاق العمل والمدة والسعر — مكتوبة، بلا مفاجآت.
+          </p>
+        </div>
 
-        <div className="max-w-2xl mx-auto">
-          <FadeIn direction="up">
-            <div className="glass-card p-8 rounded-3xl">
-              <div aria-live="polite" className="sr-only">
-                {isSubmitting ? "جاري الإرسال" : submitted ? "تم إرسال الرسالة بنجاح" : ""}
-              </div>
+        <div className="cols">
+          {/* ---------- the brief ---------- */}
+          <div className="card">
+            <p className="hp" aria-live="polite">
+              {isSubmitting ? "جاري الإرسال" : submitted ? "تم استلام الموجز" : ""}
+            </p>
 
-              {submitted ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-8 h-8 text-green-400" aria-hidden="true" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground">تم الإرسال بنجاح!</h3>
-                  <p className="text-muted-foreground">شكراً لتواصلك، سأرد عليك في أقرب وقت ممكن.</p>
-                  <Button
-                    variant="outline"
-                    className="mt-4 border-white/20 hover:border-primary"
-                    onClick={() => {
-                      mountedAt.current = Date.now();
-                      setSubmitted(false);
-                    }}
-                  >
-                    إرسال رسالة أخرى
-                  </Button>
+            {submitted ? (
+              <div className="ok">
+                <div className="ok-m" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Honeypot - visually hidden, never shown to real users. */}
-                  <div className="absolute w-px h-px overflow-hidden -left-[9999px]" aria-hidden="true">
-                    <label htmlFor="company-website">اترك هذا الحقل فارغاً</label>
+                <h3 ref={successHeading} tabIndex={-1}>
+                  وصلني موجزك
+                </h3>
+                <p>أراجعه وأرد عليك خلال 24 ساعة. وإذا الموضوع مستعجل، راسلني على تليجرام مباشرة.</p>
+                <div className="acts">
+                  <a className="sb sb-g" href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer">
+                    راسلني على تليجرام
+                  </a>
+                  <button type="button" className="sb sb-p" onClick={resetForm}>
+                    إرسال موجز آخر
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form className="form" onSubmit={handleSubmit} noValidate>
+                {/* Honeypot - hidden from real users. */}
+                <p className="hp">
+                  <label htmlFor="ada-bot">لا تملأ هذا الحقل</label>
+                  <input
+                    id="ada-bot"
+                    name="bot-field"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honey}
+                    onChange={(event) => setHoney(event.target.value)}
+                  />
+                </p>
+
+                <div className="row2">
+                  <div className={errors.name ? "f bad" : "f"}>
+                    <label htmlFor={FIELD_IDS.name}>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="8" r="3.6" />
+                        <path d="M4.5 20c0-3.6 3.4-6.2 7.5-6.2s7.5 2.6 7.5 6.2" />
+                      </svg>
+                      الاسم <i aria-hidden="true">*</i>
+                    </label>
                     <input
-                      id="company-website"
-                      name="company-website"
-                      type="text"
-                      tabIndex={-1}
-                      autoComplete="off"
-                      value={honey}
-                      onChange={(e) => setHoney(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium text-purple-100 flex items-center gap-2">
-                      <User className="w-4 h-4 text-primary" aria-hidden="true" /> الاسم
-                    </label>
-                    <Input
-                      id="name"
+                      id={FIELD_IDS.name}
                       name="name"
-                      required
-                      maxLength={MAX_NAME}
+                      type="text"
                       autoComplete="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="bg-white/5 border-white/15 h-12 focus-visible:ring-primary text-white"
-                      placeholder="اكتب اسمك هنا..."
+                      maxLength={LIMITS.name}
+                      placeholder="اسمك أو اسم شركتك"
+                      required
+                      aria-invalid={errors.name ? true : undefined}
+                      aria-describedby="ada-name-error"
+                      value={values.name}
+                      onChange={handleChange("name")}
+                      onBlur={handleBlur("name")}
                     />
+                    <span className="err" id="ada-name-error">
+                      {errors.name}
+                    </span>
                   </div>
 
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium text-purple-100 flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-primary" aria-hidden="true" /> البريد الإلكتروني
+                  <div className={errors.email ? "f bad" : "f"}>
+                    <label htmlFor={FIELD_IDS.email}>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="2.5" y="5" width="19" height="14" rx="3" />
+                        <path d="m3.5 7 8.5 6 8.5-6" />
+                      </svg>
+                      البريد الإلكتروني <i aria-hidden="true">*</i>
                     </label>
-                    <Input
-                      id="email"
+                    <input
+                      id={FIELD_IDS.email}
                       name="email"
                       type="email"
-                      required
-                      maxLength={MAX_EMAIL}
-                      autoComplete="email"
-                      inputMode="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="bg-white/5 border-white/15 h-12 focus-visible:ring-primary text-white text-left"
-                      placeholder="example@domain.com"
                       dir="ltr"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="message" className="text-sm font-medium text-purple-100 flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-primary" aria-hidden="true" /> الرسالة
-                    </label>
-                    <Textarea
-                      id="message"
-                      name="message"
+                      inputMode="email"
+                      autoComplete="email"
+                      maxLength={LIMITS.email}
+                      placeholder="name@example.com"
                       required
-                      maxLength={MAX_MESSAGE}
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="bg-white/5 border-white/15 min-h-[150px] resize-y focus-visible:ring-primary text-white"
-                      placeholder="كيف يمكنني مساعدتك؟"
+                      aria-invalid={errors.email ? true : undefined}
+                      aria-describedby="ada-email-error"
+                      value={values.email}
+                      onChange={handleChange("email")}
+                      onBlur={handleBlur("email")}
                     />
+                    <span className="err" id="ada-email-error">
+                      {errors.email}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="row2">
+                  <div className={errors.projectType ? "f bad" : "f"}>
+                    <label htmlFor={FIELD_IDS.projectType}>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="16" rx="3" />
+                        <path d="M3 9h18" />
+                      </svg>
+                      نوع المشروع <i aria-hidden="true">*</i>
+                    </label>
+                    <span className="sel">
+                      <select
+                        id={FIELD_IDS.projectType}
+                        name="project_type"
+                        required
+                        aria-invalid={errors.projectType ? true : undefined}
+                        aria-describedby="ada-type-error"
+                        value={values.projectType}
+                        onChange={handleChange("projectType")}
+                        onBlur={handleBlur("projectType")}
+                      >
+                        <option value="">— اختر —</option>
+                        {PROJECT_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </span>
+                    <span className="err" id="ada-type-error">
+                      {errors.projectType}
+                    </span>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full h-14 text-lg font-bold rounded-xl bg-primary hover:bg-primary/90 shadow-[0_0_20px_-5px_rgba(124,58,237,0.5)] group"
-                  >
-                    {isSubmitting ? (
-                      <span className="animate-pulse">جاري الإرسال...</span>
-                    ) : (
-                      <>
-                        إرسال
-                        <Send className="ms-2 w-5 h-5 group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform rtl:scale-x-[-1]" aria-hidden="true" />
-                      </>
-                    )}
-                  </Button>
+                  <div className="f">
+                    <label htmlFor="ada-budget">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="2.5" y="6" width="19" height="12" rx="2.5" />
+                        <circle cx="12" cy="12" r="2.6" />
+                      </svg>
+                      الميزانية التقريبية
+                    </label>
+                    <span className="sel">
+                      <select
+                        id="ada-budget"
+                        name="budget"
+                        value={values.budget}
+                        onChange={handleChange("budget")}
+                      >
+                        <option value="">— غير محددة بعد —</option>
+                        {BUDGETS.map((budget) => (
+                          <option key={budget} value={budget}>
+                            {budget}
+                          </option>
+                        ))}
+                      </select>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
 
-                  <p className="text-xs text-muted-foreground text-center">
-                    بياناتك تُستخدم للرد على رسالتك فقط، ولا تُشارك مع أي طرف آخر.
-                  </p>
-                </form>
-              )}
+                <div className={errors.message ? "f bad" : "f"}>
+                  <label htmlFor={FIELD_IDS.message}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-3.4A8.4 8.4 0 1 1 21 11.5Z" />
+                    </svg>
+                    تفاصيل المشروع <i aria-hidden="true">*</i>
+                  </label>
+                  <textarea
+                    id={FIELD_IDS.message}
+                    name="message"
+                    rows={4}
+                    maxLength={LIMITS.message}
+                    placeholder="عندي متجر صغير وأبغى موقع يعرض المنتجات ويستقبل الطلبات. متى تقدرين تبدئين؟"
+                    required
+                    aria-invalid={errors.message ? true : undefined}
+                    aria-describedby="ada-message-error"
+                    value={values.message}
+                    onChange={handleChange("message")}
+                    onBlur={handleBlur("message")}
+                  />
+                  <span className="err" id="ada-message-error">
+                    {errors.message}
+                  </span>
+                </div>
+
+                <button type="submit" className={isSubmitting ? "btn go" : "btn"} disabled={isSubmitting}>
+                  <span className="lbl">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8L18 6.1c.4-.3-.1-.5-.6-.2L7.3 12.3l-4.6-1.4c-1-.3-1-1 .2-1.5l18-6.9c.8-.3 1.5.2 1 2.8Z" />
+                    </svg>
+                    أرسل الموجز
+                  </span>
+                  <span className="spin" aria-hidden="true" />
+                </button>
+
+                <p className="note">
+                  بياناتك تصلني مباشرة ولا تُشارك مع أي جهة. الموجز غير ملزم — مجرد بداية نقاش.
+                </p>
+                <p className="stat" role="status">
+                  {status}
+                </p>
+              </form>
+            )}
+          </div>
+
+          {/* ---------- side panels ---------- */}
+          <aside className="side">
+            <div className="panel">
+              <h3>طريق أسرع</h3>
+              <p className="lead">تفضّل محادثة مباشرة؟ هذي أسرع وسيلة توصلني.</p>
+
+              <a className="ch" href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer">
+                <span className="ch-i" aria-hidden="true">
+                  <svg className="fl" viewBox="0 0 24 24">
+                    <path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8L18 6.1c.4-.3-.1-.5-.6-.2L7.3 12.3l-4.6-1.4c-1-.3-1-1 .2-1.5l18-6.9c.8-.3 1.5.2 1 2.8Z" />
+                  </svg>
+                </span>
+                <span className="ch-t">
+                  <b>تليجرام</b>
+                  <span>الأسرع — رد خلال ساعات</span>
+                </span>
+                <svg className="ch-a" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 6l-6 6 6 6" />
+                </svg>
+              </a>
+
+              <a className="ch" href={"mailto:" + getReceiver()}>
+                <span className="ch-i" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <rect x="2.5" y="5" width="19" height="14" rx="3" />
+                    <path d="m3.5 7 8.5 6 8.5-6" />
+                  </svg>
+                </span>
+                <span className="ch-t">
+                  <b dir="ltr">{getReceiver()}</b>
+                  <span>للمراسلات الرسمية والملفات</span>
+                </span>
+                <svg className="ch-a" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 6l-6 6 6 6" />
+                </svg>
+              </a>
             </div>
-          </FadeIn>
+
+            <div className="panel">
+              <h3>ماذا يحدث بعد الإرسال؟</h3>
+              <p className="lead">بلا انتظار مجهول — هذي الخطوات بالضبط.</p>
+              <ol className="flow">
+                <li>
+                  <b>أقرأ موجزك وأرد خلال 24 ساعة</b>
+                  <span>برد مكتوب، لا رسالة آلية.</span>
+                </li>
+                <li>
+                  <b>مكالمة قصيرة لتحديد النطاق</b>
+                  <span>من 15 إلى 20 دقيقة نتفق فيها على المطلوب بالضبط.</span>
+                </li>
+                <li>
+                  <b>عرض سعر ومدة مكتوبان</b>
+                  <span>تعرف الرقم والتاريخ قبل ما تلتزم بأي شيء.</span>
+                </li>
+              </ol>
+              <span className="live">
+                <i aria-hidden="true" /> متاحة لمشاريع جديدة
+              </span>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
