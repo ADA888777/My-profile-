@@ -4,28 +4,45 @@ import { ExternalLink } from "lucide-react";
 type Project = {
   title: string;
   description: string;
+  /* Live URL. Every link here is verified to resolve. */
   link: string;
+  /* Real screenshot of the live site, served from /public/images. */
   image: string;
+  stack: string;
 };
 
 const projects: Project[] = [
   {
-    title: "منصة رابط لربط المندوبين بالبائعين",
-    description: "منصة وسيطة تربط مندوبي التوصيل بالبائعين وتنظم الطلبات بينهم.",
-    link: "https://aba787.github.io/HSHS/",
-    image: "https://i.ibb.co/wFzR1XNX/White-and-Light-Blue-Minimalist-Simple-Literature-Project-Presentation-2.png",
+    title: "منصة HS لربط الشركات بالمندوبين",
+    description:
+      "منصة تربط الشركات بمندوبي المبيعات: تسجيل للطرفين، إدارة الطلبات، وتتبع الأرباح.",
+    link: "https://ada888777.github.io/HSHS/",
+    image: "/images/project-hs-platform.jpg",
+    stack: "واجهة عربية RTL",
   },
   {
-    title: "موقع معلمة لغات",
-    description: "موقع تعريفي لمعلمة لغات مع عرض الدورات وإمكانية التواصل والتسجيل.",
-    link: "https://aba787.github.io/Sanoora/",
-    image: "https://i.ibb.co/ZzQ60zn4/White-and-Light-Blue-Minimalist-Simple-Literature-Project-Presentation.png",
+    title: "سانورا — أكاديمية اللغات",
+    description:
+      "موقع أكاديمية لغات: عرض الدورات والأسعار، صفحات تعريفية، وقنوات تواصل وتسجيل.",
+    link: "https://sanoora.netlify.app/",
+    image: "/images/project-sanoora.jpg",
+    stack: "موقع تعريفي + متجر دورات",
   },
   {
-    title: "موقع وريث",
-    description: "موقع خدمات متكامل مع واجهة عربية واضحة وتجربة استخدام سريعة.",
-    link: "https://aba787.github.io/WAREETH/",
-    image: "https://i.ibb.co/6V40J86/White-and-Light-Blue-Minimalist-Simple-Literature-Project-Presentation-1.png",
+    title: "منصة آدا للتعلم الرقمي",
+    description:
+      "منصة دورات تقنية بواجهة عربية كاملة، مبنية على React وTypeScript مع خادم API ومكتبات مشتركة.",
+    link: "https://mystore888.netlify.app/",
+    image: "/images/project-ada-platform.jpg",
+    stack: "React · TypeScript · API",
+  },
+  {
+    title: "وريث — مبادرة التراث السعودي",
+    description:
+      "موقع تعريفي لمبادرة تراثية: الرؤية والرسالة، الفعاليات والإنجازات، وبرنامج سفراء التراث.",
+    link: "https://ada888777.github.io/WAREETH/",
+    image: "/images/project-wareeth.jpg",
+    stack: "موقع تعريفي",
   },
 ];
 
@@ -36,29 +53,38 @@ export function Projects() {
         <FadeIn className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-display font-bold inline-block relative">
             أعمالي
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1 w-1/2 bg-primary rounded-full" aria-hidden="true"></div>
+            <div
+              className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1 w-1/2 bg-primary rounded-full"
+              aria-hidden="true"
+            ></div>
           </h2>
+          <p className="mt-8 text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            مشاريع حقيقية منشورة على الإنترنت — كل بطاقة تفتح الموقع نفسه، والصورة لقطة من النسخة المنشورة.
+          </p>
         </FadeIn>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid gap-8 sm:grid-cols-2 max-w-5xl mx-auto">
           {projects.map((project, i) => (
-            <FadeIn key={project.link} delay={i * 0.15}>
+            <FadeIn key={project.link} delay={i * 0.12}>
               <a
                 href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex h-full flex-col rounded-2xl overflow-hidden glass-card hover-glow border-white/10"
               >
-                <div className="relative h-48 overflow-hidden">
-                  <div className="absolute inset-0 bg-primary/20 group-hover:opacity-0 transition-opacity z-10 mix-blend-overlay" aria-hidden="true"></div>
+                <div className="relative aspect-[16/9] overflow-hidden bg-black/30">
+                  <div
+                    className="absolute inset-0 bg-primary/20 group-hover:opacity-0 transition-opacity z-10 mix-blend-overlay"
+                    aria-hidden="true"
+                  ></div>
                   <img
                     src={project.image}
-                    alt={`لقطة من ${project.title}`}
-                    width={640}
-                    height={360}
+                    alt={"لقطة من موقع " + project.title}
+                    width={1568}
+                    height={698}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover object-top transform group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
                 <div className="p-6 flex flex-1 items-start justify-between gap-4">
@@ -69,6 +95,7 @@ export function Projects() {
                     <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                       {project.description}
                     </p>
+                    <p className="mt-3 text-xs font-semibold text-primary/90">{project.stack}</p>
                   </div>
                   <span className="shrink-0 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                     <ExternalLink className="w-5 h-5 rtl:-scale-x-100" aria-hidden="true" />
