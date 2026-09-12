@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# No private areas on this site, everything is public.
+Disallow: /assets/*.map
+
+Sitemap: https://my-profile-87.netlify.app/sitemap.xml
