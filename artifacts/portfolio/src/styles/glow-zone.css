@@ -1,0 +1,196 @@
+/* ==========================================================================
+   glow-zone.css — نطاق الخلفية المتدرّجة (Glow Zone)
+
+   خلفية بنفسجية بتوهّج ركني وحبيبات، تغطّي نطاقاً من أقسام الصفحة،
+   ثم تتلاشى في نهايته إلى لون خلفية القسم الذي يليه.
+
+   الاستخدام (JSX):
+     <div className="gz-wrap">
+       <div className="gz-bg" aria-hidden="true">
+         <span className="gz-orb gz-orb-1" />
+         <span className="gz-orb gz-orb-2" />
+         <span className="gz-orb gz-orb-3" />
+         <span className="gz-orb gz-orb-4" />
+         <span className="gz-grain" />
+         <span className="gz-fade" />
+       </div>
+       <div className="gz-content">
+         ... الأقسام التي يغطّيها النطاق ...
+       </div>
+     </div>
+
+   مفاتيح التحكّم (متغيّرات على .gz-wrap):
+     --gz-top / --gz-mid / --gz-bottom  تدرّج القاعدة من الأعلى إلى الأسفل
+     --gz-next-rgb                      لون القسم التالي (مكوّنات RGB مفصولة بمسافات)
+     --gz-fade-h                        ارتفاع منطقة التلاشي
+     --gz-grain                         قوة الحبيبات: .15 خفيفة · .23 متوازنة · .35 واضحة
+
+   قواعد مهمّة:
+   - --gz-next-rgb يجب أن يساوي لون خلفية القسم الذي يلي النطاق، وإلا ظهر خط فاصل.
+     القسم التالي هنا هو "التقنيات" (#skills): bg-black/20 فوق خلفية الصفحة
+     hsl(240 10% 4%) = #09090B  ⇒  الناتج #070709 = 7 7 9.
+   - لا تضع transform على .gz-wrap: يصير هو المرجع لـ position:absolute ويكسر الطبقات.
+   - overflow:hidden مطلوب على .gz-wrap نفسه (يمنع التمرير الأفقي من الدوائر)،
+     ولا يوضع على أي أب له.
+   - لنقل التوهّج إلى زاوية أخرى: بدّل bottom/left في .gz-orb-1..4
+     (مثلاً top و right لجعله أعلى-يمين).
+   - الأسماء كلها بسابقة gz- حتى لا تتعارض مع أصناف Tailwind.
+   ========================================================================== */
+
+.gz-wrap {
+  position: relative;
+  /* يحصر mix-blend-mode للطبقات داخل النطاق فلا تتأثر بقية الصفحة. */
+  isolation: isolate;
+  /* الدوائر أعرض من الشاشة؛ هذا يمنع ظهور تمرير أفقي. */
+  overflow: hidden;
+
+  /* تدرّج القاعدة */
+  --gz-top: #2f2940;
+  --gz-mid: #2b253b;
+  --gz-bottom: #262230;
+
+  /* لون خلفية القسم الذي يلي النطاق */
+  --gz-next-rgb: 7 7 9;
+
+  --gz-fade-h: clamp(200px, 26vh, 360px);
+  --gz-grain: 0.23;
+
+  /* احتياط لو لم تُرسم طبقة gz-bg لأي سبب. */
+  background-color: var(--gz-mid);
+}
+
+/* طبقة الخلفية: تُرسم خلف المحتوى ولا تستقبل أي نقر. */
+.gz-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    180deg,
+    var(--gz-top) 0%,
+    var(--gz-mid) 46%,
+    var(--gz-bottom) 100%
+  );
+}
+
+/* المحتوى دائماً فوق الخلفية. */
+.gz-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ——— التوهّج الركني: أربع دوائر متراكبة (أسفل-يسار) ——— */
+.gz-orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.gz-orb-1 {
+  bottom: 30px;
+  left: -24vw;
+  width: 112vw;
+  height: 600px;
+  background-image: radial-gradient(
+    closest-side,
+    rgb(96 60 186 / 0.5),
+    rgb(96 60 186 / 0) 100%
+  );
+}
+
+.gz-orb-2 {
+  bottom: 110px;
+  left: -14vw;
+  width: 78vw;
+  height: 450px;
+  background-image: radial-gradient(
+    closest-side,
+    rgb(124 59 237 / 0.36),
+    rgb(124 59 237 / 0) 100%
+  );
+}
+
+.gz-orb-3 {
+  bottom: 185px;
+  left: -4vw;
+  width: 50vw;
+  height: 310px;
+  background-image: radial-gradient(
+    closest-side,
+    rgb(150 120 235 / 0.3),
+    rgb(150 120 235 / 0) 100%
+  );
+}
+
+.gz-orb-4 {
+  bottom: 245px;
+  left: 4vw;
+  width: 28vw;
+  height: 185px;
+  background-image: radial-gradient(
+    closest-side,
+    rgb(180 155 245 / 0.24),
+    rgb(180 155 245 / 0) 100%
+  );
+}
+
+/* ——— الحبيبات ——— */
+/* ضجيج SVG مُدمج (data URI) بدل ملف صورة: صفر طلبات شبكة.
+   overlay يُظهر الحبيبات على خلفية غامقة بفارق واضح في الاتجاهين. */
+.gz-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--gz-grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23g)'/></svg>");
+  background-size: 180px 180px;
+  background-repeat: repeat;
+}
+
+/* ——— التلاشي في نهاية النطاق ——— */
+/* bottom:-1px يغطّي أي فرق تقريب في ارتفاع الغلاف فلا يبقى شعرة فاتحة. */
+.gz-fade {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: var(--gz-fade-h);
+  pointer-events: none;
+  background-image: linear-gradient(
+    to bottom,
+    rgb(var(--gz-next-rgb) / 0) 0%,
+    rgb(var(--gz-next-rgb) / 0.55) 52%,
+    rgb(var(--gz-next-rgb) / 0.9) 84%,
+    rgb(var(--gz-next-rgb) / 1) 100%
+  );
+}
+
+/* ——— الجوال ——— */
+/* على الشاشات الضيّقة يصير الغلاف أطول نسبياً، فتُصغَّر الدوائر
+   ويُقصَّر التلاشي حتى تبقى النسب قريبة من التصميم. */
+@media (max-width: 700px) {
+  .gz-wrap {
+    --gz-fade-h: clamp(150px, 20vh, 240px);
+    --gz-grain: 0.2;
+  }
+
+  .gz-orb-1 { bottom: 20px;  left: -30vw; width: 150vw; height: 380px; }
+  .gz-orb-2 { bottom: 70px;  left: -22vw; width: 112vw; height: 280px; }
+  .gz-orb-3 { bottom: 120px; left: -10vw; width: 76vw;  height: 200px; }
+  .gz-orb-4 { bottom: 160px; left: 0;     width: 46vw;  height: 130px; }
+}
+
+/* شاشات عريضة جداً: الدوائر بوحدات vw فتكبر أكثر من اللازم، نحدّد سقفاً. */
+@media (min-width: 1800px) {
+  .gz-orb-1 { width: 1900px; }
+  .gz-orb-2 { width: 1320px; }
+  .gz-orb-3 { width: 860px;  }
+  .gz-orb-4 { width: 480px;  }
+}
+
+/* لو فعّل المستخدم "تقليل الشفافية" في النظام، نخفّف الطبقات الزخرفية. */
+@media (prefers-reduced-transparency: reduce) {
+  .gz-grain { opacity: 0.1; }
+}
