@@ -23,19 +23,23 @@
 
 ```text
 artifacts/
-  portfolio/            موقع البورتفوليو  <-- هذا هو المشروع المنشور
+  portfolio/                 موقع البورتفوليو  <-- هذا هو المشروع المنشور
     public/
-      images/           لقطات المشاريع الحقيقية + خلفيات
+      images/                لقطات المشاريع الحقيقية
       robots.txt, sitemap.xml, logo.jpeg, opengraph.jpg
     src/
-      components/       layout/ + sections/ + ui/
-      pages/            Home, not-found
-      styles/           contact-footer.css  (تنسيق قسم التواصل والفوتر)
-      index.css         متغيرات الثيم والأدوات المخصصة
-  api-server/           خادم Express غير مستخدم من قبل الموقع
-  mockup-sandbox/       ساندبوكس تجارب غير مستخدم
-lib/                    مكتبات db / api-spec / api-client غير مستخدمة من الموقع
-netlify.toml            إعدادات البناء + رؤوس الأمان والتخزين المؤقت
+      components/            layout/ + sections/ + ui/
+      pages/                 Home, not-found
+      styles/
+        contact-footer.css   تنسيق قسم التواصل والفوتر
+        glow-zone.css        خلفية النطاق المتدرّج (البطل + من أنا)
+      index.css              متغيرات الثيم والأدوات المخصصة
+  api-server/                خادم Express غير مستخدم من قبل الموقع
+  mockup-sandbox/            ساندبوكس تجارب غير مستخدم
+lib/                         مكتبات db / api-spec / api-client غير مستخدمة من الموقع
+netlify.toml                 إعدادات البناء + رؤوس الأمان والتخزين المؤقت
+zone-only.png                مرجع تصميم: الخلفية وحدها (غير مستخدم في البناء)
+zone-scope.png               مرجع تصميم: نطاق الخلفية (غير مستخدم في البناء)
 ```
 
 ## التشغيل محلياً
@@ -59,13 +63,56 @@ pnpm run typecheck                             # فحص الأنواع
 - رؤوس الأمان (CSP، HSTS، X-Frame-Options ...) معرفة في `netlify.toml`
 - أي مسار غير موجود يُرجع بكود 404 حقيقي (لتجنب soft 404 في Google)
 
+## خلفية النطاق المتدرّج (Glow Zone)
+
+خلفية بنفسجية بتوهّج ركني وحبيبات، تمتد من أعلى قسم البطل
+«حلول تقنية احترافية تبدأ من الفكرة وتنتهي بنتيجة حقيقية» (`#home`)
+حتى نهاية قسم «من أنا» (`#about`)، ثم تتلاشى إلى لون قسم «التقنيات».
+
+القسمان متجاوران في الـ DOM، فيكفي غلاف واحد في `Home.tsx`:
+
+```tsx
+<div className="gz-wrap">
+  <div className="gz-bg" aria-hidden="true">
+    <span className="gz-orb gz-orb-1" /> ... <span className="gz-orb gz-orb-4" />
+    <span className="gz-grain" />
+    <span className="gz-fade" />
+  </div>
+  <div className="gz-content">
+    <Hero />
+    <About />
+  </div>
+</div>
+```
+
+التنسيق في `artifacts/portfolio/src/styles/glow-zone.css` وكل الأصناف بسابقة
+`gz-` حتى لا تتعارض مع أدوات Tailwind. مفاتيح التحكّم على `.gz-wrap`:
+
+| المتغير | الوظيفة |
+| --- | --- |
+| `--gz-top` / `--gz-mid` / `--gz-bottom` | تدرّج القاعدة من الأعلى إلى الأسفل |
+| `--gz-next-rgb` | لون خلفية القسم التالي (مكوّنات RGB بمسافات) |
+| `--gz-fade-h` | ارتفاع منطقة التلاشي |
+| `--gz-grain` | قوة الحبيبات: `.15` خفيفة · `.23` متوازنة · `.35` واضحة |
+
+ملاحظات مهمّة:
+
+- `--gz-next-rgb` يجب أن يساوي لون خلفية القسم الذي يلي النطاق وإلا ظهر خط فاصل.
+  قسم «التقنيات» خلفيته `bg-black/20` فوق `#09090B` أي `#070709` = `7 7 9`.
+- `overflow: hidden` موضوع على `.gz-wrap` نفسه (يمنع التمرير الأفقي من الدوائر العريضة)،
+  ولا يوضع على أي أب له، ولا يوضع `transform` على الغلاف لأنه يكسر مرجع `position: absolute`.
+- لنقل التوهّج إلى زاوية أخرى: بدّل `bottom` / `left` في `.gz-orb-1..4` إلى `top` / `right`.
+- الحبيبات ضجيج SVG مُدمج كـ data URI: لا طلب شبكة ولا ملف صورة.
+- قسم البطل لم تبقَ له خلفية خاصة (حُذفت طبقة `.hero-backdrop` المعتمة لأنها تحجب النطاق)،
+  وحدّ قسم «التقنيات» صار `border-b` بدل `border-y` حتى لا يقطع خط رقيق نهاية التلاشي.
+
 ## قسم التواصل والفوتر
 
 التنسيق كله في `artifacts/portfolio/src/styles/contact-footer.css` ومحصور داخل
 `.ada-ct` (التواصل) و `.ada-ft` (الفوتر) حتى لا تتعارض أسماء الأصناف القصيرة
 (`card`, `cols`, `f`, `btn` ...) مع أدوات Tailwind في بقية الموقع.
 
-نموذج "الموجز" يجمع: الاسم، البريد، نوع المشروع، الميزانية التقريبية، والتفاصيل.
+نموذج «الموجز» يجمع: الاسم، البريد، نوع المشروع، الميزانية التقريبية، والتفاصيل.
 
 - الإرسال عبر `formsubmit.co/ajax` (بدون خادم)، والبريد يُركَّب في وقت التشغيل حتى لا تحصده الروبوتات
 - تحقق فوري من كل حقل عند الخروج منه، ورسائل خطأ عربية مرتبطة بـ `aria-describedby`
@@ -101,8 +148,10 @@ pnpm run typecheck                             # فحص الأنواع
 - [ ] إضافة أدلة للأرقام المعروضة في `About.tsx` (الشهادات، المشاريع، الطلاب)
 - [ ] إضافة رابط واتساب وملف السيرة الذاتية إلى الفوتر إن رغبت
 - [ ] تفعيل GitHub Pages لمستودع `Sanoora` أو الاعتماد على `sanoora.netlify.app`
+- [ ] حذف `zone-only.png` و `zone-scope.png` من جذر المستودع (~4 ميجابايت مراجع تصميم فقط)
 - [ ] حذف `artifacts/api-server` و `artifacts/mockup-sandbox` و `lib/` إن لم تُستخدم
 - [ ] حذف `artifacts/portfolio/public/images/hero-bg.png` (لم يعد مستخدماً)
+- [ ] حذف الأداتين `.hero-backdrop` و `.hero-fade` من `index.css` (لم تبقَ لهما استخدامات)
 - [ ] نقل الاعتماديات من `devDependencies` إلى `dependencies` في `artifacts/portfolio/package.json`
 - [ ] إزالة `https://i.ibb.co` من `img-src` في CSP (لم تبق صور خارجية)
 - [ ] إضافة ملف LICENSE (package.json يذكر MIT)
