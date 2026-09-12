@@ -5,15 +5,13 @@ import { Button } from "@/components/ui/button";
 export function Hero() {
   return (
     <section id="home" className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background with Generated Image & Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={`${import.meta.env.BASE_URL}images/hero-bg.png`} 
-          alt="Background" 
-          className="w-full h-full object-cover opacity-30 mix-blend-screen"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background"></div>
-        {/* Glow effects */}
+      {/*
+        Background is now generated entirely in CSS (.hero-backdrop).
+        It replaces the old 980 KB hero-bg.png, which was downloaded on every
+        visit only to be shown at 30% opacity. Saves ~1 MB on first load.
+      */}
+      <div className="absolute inset-0 z-0 hero-backdrop hero-fade" aria-hidden="true">
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background"></div>
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] mix-blend-screen"></div>
         <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[150px] mix-blend-screen"></div>
       </div>
@@ -25,11 +23,11 @@ export function Hero() {
           transition={{ duration: 0.7 }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-8 border-primary/30"
         >
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse-slow"></span>
-          <span className="text-sm font-medium text-purple-200">جود عبد الفتاح - خبيرة تقنية</span>
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse-slow" aria-hidden="true"></span>
+          <span className="text-sm font-medium text-purple-100">جود عبد الفتاح - خبيرة تقنية</span>
         </motion.div>
 
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
@@ -39,16 +37,16 @@ export function Hero() {
           <span className="text-gradient">بنتيجة حقيقية</span>
         </motion.h1>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="mt-6 text-xl md:text-2xl font-medium text-purple-200/80 max-w-2xl"
+          className="mt-6 text-xl md:text-2xl font-medium text-purple-100 max-w-2xl"
         >
           برمجة – أمن سيبراني – مواقع – تطبيقات – استشارات
         </motion.p>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
@@ -57,28 +55,28 @@ export function Hero() {
           أنا أقدم خدمات تقنية متكاملة للأفراد والشركات، من بناء الأنظمة إلى تأمينها وتطويرها. إذا عندك فكرة، أنا أحولها إلى مشروع فعلي جاهز للسوق.
         </motion.p>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
           className="mt-10 flex flex-col sm:flex-row items-center gap-4"
         >
-          <Button 
+          <Button
             size="lg"
             className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_30px_-5px_rgba(124,58,237,0.5)] hover:shadow-[0_0_40px_-5px_rgba(124,58,237,0.7)] transition-all group"
             onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
           >
             ابدأ مشروعك
-            <ArrowLeft className="ml-2 w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="ms-2 w-5 h-5 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
           </Button>
-          
-          <Button 
+
+          <Button
             size="lg"
             variant="outline"
-            className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-white/10 hover:bg-white/5 hover:text-white transition-all group"
+            className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-white/20 hover:bg-white/5 hover:text-white transition-all group"
             onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
           >
-            <Briefcase className="mr-2 w-5 h-5 group-hover:text-primary transition-colors" />
+            <Briefcase className="me-2 w-5 h-5 group-hover:text-primary transition-colors" aria-hidden="true" />
             شاهد أعمالي
           </Button>
         </motion.div>
