@@ -8,7 +8,7 @@
   </defs>
   <rect width="64" height="64" rx="15" fill="url(#adaMark)" />
   <g fill="none" stroke="#FFFFFF" stroke-linecap="round">
-    <path d="M32 22V47" stroke-width="8" />
-    <path d="M21 15C24.7 10 28.3 10 32 15C35.7 20 39.3 20 43 15" stroke-width="5" />
+    <path d="M32 27V49" stroke-width="8.5" />
+    <path d="M20 14C23.5 8.5 28.5 8.5 32 14C35.5 19.5 40.5 19.5 44 14" stroke-width="5" />
   </g>
 </svg>
