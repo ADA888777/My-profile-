@@ -41,9 +41,9 @@ export function Navbar() {
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-3 group" aria-label="العودة للرئيسية">
-          <span className="relative overflow-hidden rounded-full h-10 w-10 border border-primary/20 group-hover:border-primary/60 transition-colors">
+          <span className="relative overflow-hidden rounded-xl h-10 w-10 border border-primary/20 group-hover:border-primary/60 transition-colors">
             <img
-              src="/logo.jpeg"
+              src="/logo.svg"
               alt=""
               width={40}
               height={40}
