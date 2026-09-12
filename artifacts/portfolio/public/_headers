@@ -1,0 +1,51 @@
+# ==========================================================================
+# Cloudflare Pages — الترويسات المخصّصة
+#
+# يقابل أقسام [[headers]] في netlify.toml حتى تتطابق ترويسات الأمان
+# والتخزين المؤقت على المنصتين. يوضع داخل public/ فينسخه Vite إلى جذر
+# مجلد البناء، وCloudflare يقرأه ولا ينشره كملف.
+#
+# ملاحظة: Cloudflare Pages يضيف Access-Control-Allow-Origin: * تلقائياً لكل
+# الأصول، والعلامة (! ) تلغي ترويسة افتراضية. الموقع لا يحتاج مشاركة أصوله
+# مع نطاقات أخرى فنلغيها.
+# ==========================================================================
+
+/*
+  ! Access-Control-Allow-Origin
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Cross-Origin-Opener-Policy: same-origin
+  X-DNS-Prefetch-Control: off
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://formsubmit.co; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.ibb.co; connect-src 'self' https://formsubmit.co; manifest-src 'self'; upgrade-insecure-requests
+
+# أصول البناء تحمل بصمة في أسمائها فلا تتغير أبداً.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=2592000
+
+/*.jpg
+  Cache-Control: public, max-age=2592000
+
+/*.jpeg
+  Cache-Control: public, max-age=2592000
+
+/*.svg
+  Cache-Control: public, max-age=2592000
+
+# الصفحات يجب التحقق منها دائماً حتى يظهر كل نشر جديد فوراً.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/404.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+/sitemap.xml
+  Cache-Control: public, max-age=86400
