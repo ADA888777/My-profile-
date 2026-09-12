@@ -4,8 +4,6 @@
    names can never collide with the Tailwind utilities used by the
    rest of the site.
    --------------------------------------------------------------- */
-@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap");
-
 .ada-ct,
 .ada-ft {
   --ada-bg: #050507;
