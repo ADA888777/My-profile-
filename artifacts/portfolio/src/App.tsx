@@ -1,5 +1,6 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
@@ -19,15 +20,19 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          {/* Main App Container wrapped with logical RTL properties where needed */}
-          <div dir="rtl" lang="ar" className="antialiased">
-            <Router />
-          </div>
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      {/* reducedMotion="user" makes every framer-motion animation respect the
+          operating system "reduce motion" accessibility setting (WCAG 2.3.3). */}
+      <MotionConfig reducedMotion="user">
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            {/* lang/dir now live on the <html> element in index.html. */}
+            <div className="antialiased">
+              <Router />
+            </div>
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }
