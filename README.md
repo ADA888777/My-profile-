@@ -23,26 +23,29 @@
 
 ```text
 artifacts/
-  portfolio/          موقع البورتفوليو  <-- هذا هو المشروع المنشور
-    public/           ملفات ستاتيكية (robots.txt, sitemap.xml, logo, opengraph)
+  portfolio/            موقع البورتفوليو  <-- هذا هو المشروع المنشور
+    public/
+      images/           لقطات المشاريع الحقيقية + خلفيات
+      robots.txt, sitemap.xml, logo.jpeg, opengraph.jpg
     src/
-      components/     layout/ + sections/ + ui/
-      pages/          Home, not-found
-      index.css       متغيرات الثيم والأدوات المخصصة
-  api-server/         خادم Express غير مستخدم من قبل الموقع
-  mockup-sandbox/     ساندبوكس تجارب غير مستخدم
-lib/                  مكتبات db / api-spec / api-client غير مستخدمة من الموقع
-netlify.toml          إعدادات البناء + رأوس الأمان والتخزين المؤقت
+      components/       layout/ + sections/ + ui/
+      pages/            Home, not-found
+      styles/           contact-footer.css  (تنسيق قسم التواصل والفوتر)
+      index.css         متغيرات الثيم والأدوات المخصصة
+  api-server/           خادم Express غير مستخدم من قبل الموقع
+  mockup-sandbox/       ساندبوكس تجارب غير مستخدم
+lib/                    مكتبات db / api-spec / api-client غير مستخدمة من الموقع
+netlify.toml            إعدادات البناء + رؤوس الأمان والتخزين المؤقت
 ```
 
 ## التشغيل محلياً
 
 ```bash
 pnpm install
-pnpm --filter @workspace/portfolio run dev      # خادم التطوير
-pnpm --filter @workspace/portfolio run build    # بناء للإنتاج
-pnpm --filter @workspace/portfolio run serve    # معاينة البناء
-pnpm run typecheck                              # فحص الأنواع
+pnpm --filter @workspace/portfolio run dev     # خادم التطوير
+pnpm --filter @workspace/portfolio run build   # بناء للإنتاج
+pnpm --filter @workspace/portfolio run serve   # معاينة البناء
+pnpm run typecheck                             # فحص الأنواع
 ```
 
 > المشروع يعتمد pnpm حصراً (هناك سكربت preinstall يمنع npm و yarn).
@@ -53,26 +56,55 @@ pnpm run typecheck                              # فحص الأنواع
 
 - أمر البناء: `pnpm install --no-frozen-lockfile && pnpm --filter @workspace/portfolio run build`
 - مجلد النشر: `artifacts/portfolio/dist/public`
-- رأوس الأمان (CSP، HSTS، X-Frame-Options ...) معرفة في `netlify.toml`
+- رؤوس الأمان (CSP، HSTS، X-Frame-Options ...) معرفة في `netlify.toml`
 - أي مسار غير موجود يُرجع بكود 404 حقيقي (لتجنب soft 404 في Google)
+
+## قسم التواصل والفوتر
+
+التنسيق كله في `artifacts/portfolio/src/styles/contact-footer.css` ومحصور داخل
+`.ada-ct` (التواصل) و `.ada-ft` (الفوتر) حتى لا تتعارض أسماء الأصناف القصيرة
+(`card`, `cols`, `f`, `btn` ...) مع أدوات Tailwind في بقية الموقع.
+
+نموذج "الموجز" يجمع: الاسم، البريد، نوع المشروع، الميزانية التقريبية، والتفاصيل.
+
+- الإرسال عبر `formsubmit.co/ajax` (بدون خادم)، والبريد يُركَّب في وقت التشغيل حتى لا تحصده الروبوتات
+- تحقق فوري من كل حقل عند الخروج منه، ورسائل خطأ عربية مرتبطة بـ `aria-describedby`
+- مصيدة روبوتات (honeypot) + حد زمني أدنى للتعبئة
+- حالة نجاح مستقلة مع نقل تركيز لوحة المفاتيح إليها
 
 ## السيو والوصولية
 
 - `<html lang="ar" dir="rtl">` مع meta description و canonical و Open Graph و Twitter Cards
-- بيانات منسقة JSON-LD (Person + ProfessionalService + WebSite)
+- بيانات منسقة JSON-LD (Person + ProfessionalService + WebSite) وتشمل حساب تليجرام في `sameAs`
 - `robots.txt` و `sitemap.xml` في `artifacts/portfolio/public/`
+- الخطوط العربية (Cairo، IBM Plex Sans Arabic، Tajawal) تُحمَّل من `index.html` لا عبر `@import` داخل CSS
 - رابط تخطي إلى المحتوى، تركيز مرئي للوحة المفاتيح، واحترام `prefers-reduced-motion`
 - الأداة `.bidi-isolate` تمنع انقلاب النصوص اللاتينية مثل `C#` داخل الصفحة العربية
 
+## الأعمال المعروضة
+
+كل رابط في `Projects.tsx` تم التحقق من أنه يفتح فعلاً، والصور لقطات حقيقية من النسخ المنشورة:
+
+| المشروع | الرابط |
+| --- | --- |
+| منصة HS لربط الشركات بالمندوبين | https://ada888777.github.io/HSHS/ |
+| سانورا — أكاديمية اللغات | https://sanoora.netlify.app/ |
+| منصة آدا للتعلم الرقمي | https://mystore888.netlify.app/ |
+| وريث — مبادرة التراث السعودي | https://ada888777.github.io/WAREETH/ |
+
+> الروابط القديمة كانت تشير إلى `aba787.github.io` وهو حساب غير موجود، فكانت كل بطاقات
+> الأعمال تفتح صفحة 404. الحساب الصحيح هو `ada888777.github.io`.
+
 ## مهام متبقية (تحتاج قراراً يدوياً)
 
-- [ ] استبدال صور المشاريع في `Projects.tsx` بلقطات حقيقية (الحالية قوالب عامة على i.ibb.co)
-- [ ] إضافة روابط واتساب / LinkedIn وملف السيرة الذاتية في `Footer.tsx`
-- [ ] إضافة أدلة للأرقام المعروضة في `About.tsx` (الشهادات، المشاريع)
+- [ ] تفعيل بريد `hshmhshm72@gmail.com` في FormSubmit: أول إرسال من النموذج يطلب تأكيداً بالبريد لمرة واحدة
+- [ ] إضافة أدلة للأرقام المعروضة في `About.tsx` (الشهادات، المشاريع، الطلاب)
+- [ ] إضافة رابط واتساب وملف السيرة الذاتية إلى الفوتر إن رغبت
+- [ ] تفعيل GitHub Pages لمستودع `Sanoora` أو الاعتماد على `sanoora.netlify.app`
 - [ ] حذف `artifacts/api-server` و `artifacts/mockup-sandbox` و `lib/` إن لم تُستخدم
 - [ ] حذف `artifacts/portfolio/public/images/hero-bg.png` (لم يعد مستخدماً)
 - [ ] نقل الاعتماديات من `devDependencies` إلى `dependencies` في `artifacts/portfolio/package.json`
-- [ ] نقل نموذج التواصل إلى Netlify Forms أو Netlify Function لإخفاء البريد تماماً
+- [ ] إزالة `https://i.ibb.co` من `img-src` في CSP (لم تبق صور خارجية)
 - [ ] إضافة ملف LICENSE (package.json يذكر MIT)
 
 ## الترخيص
