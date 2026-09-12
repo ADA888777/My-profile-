@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="آدا">
+  <defs>
+    <linearGradient id="adaLogo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#A78BFA" />
+      <stop offset="0.55" stop-color="#7C3BED" />
+      <stop offset="1" stop-color="#5B21B6" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#adaLogo)" />
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round">
+    <path d="M32 27V49" stroke-width="8.5" />
+    <path d="M20 14C23.5 8.5 28.5 8.5 32 14C35.5 19.5 40.5 19.5 44 14" stroke-width="5" />
+  </g>
+</svg>
