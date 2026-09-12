@@ -8,7 +8,14 @@ const skills = [
 
 export function Skills() {
   return (
-    <section id="skills" className="py-24 relative bg-black/20 border-y border-white/5">
+    /*
+      كان الحد هنا border-y، والحد الأعلى منه يقع تماماً على نهاية نطاق
+      الخلفية المتدرّجة (.gz-wrap) فيظهر كخط فاصل رقيق يقطع التلاشي.
+      صار border-b فقط: الانتقال من النطاق إلى هذا القسم بلا أي خط.
+      ملاحظة: خلفية هذا القسم هي bg-black/20 فوق خلفية الصفحة #09090B،
+      أي #070709 — وهي نفس القيمة في --gz-next-rgb داخل glow-zone.css.
+    */
+    <section id="skills" className="py-24 relative bg-black/20 border-b border-white/5">
       <div className="container mx-auto px-4 md:px-6">
         <FadeIn className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-display font-bold inline-block relative">
