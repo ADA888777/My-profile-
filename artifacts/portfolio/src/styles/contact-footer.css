@@ -1,0 +1,267 @@
+/* ---------------------------------------------------------------
+   Contact + Footer design system.
+   Every rule is scoped under .ada-ct / .ada-ft so these short class
+   names can never collide with the Tailwind utilities used by the
+   rest of the site.
+   --------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap");
+
+.ada-ct,
+.ada-ft {
+  --ada-bg: #050507;
+  --ada-card: #121214;
+  --ada-card-2: #0e0e10;
+  --ada-input: #1e1e1f;
+  --ada-footer: #09090b;
+  --ada-violet: #7c3bed;
+  --ada-violet-l: #a78bfa;
+  --ada-txt: #f5f3fa;
+  --ada-mut: #8b8598;
+  --ada-mut-2: #6a6578;
+  --ada-line: rgba(255, 255, 255, 0.07);
+  --ada-grad: linear-gradient(135deg, #a78bfa 0%, #7c3bed 55%, #5b21b6 100%);
+  --ada-ok: #34d399;
+  font-family: "Tajawal", "Cairo", system-ui, sans-serif;
+  color: var(--ada-txt);
+}
+.ada-ct *, .ada-ft * { box-sizing: border-box; }
+.ada-ct a, .ada-ft a { text-decoration: none; }
+.ada-ct .wrap, .ada-ft .wrap { max-width: 1160px; margin: 0 auto; padding: 0 1.5rem; }
+.ada-ct a:focus-visible, .ada-ct button:focus-visible, .ada-ct input:focus-visible,
+.ada-ct select:focus-visible, .ada-ct textarea:focus-visible,
+.ada-ft a:focus-visible, .ada-ft button:focus-visible {
+  outline: 2px solid var(--ada-violet-l);
+  outline-offset: 3px;
+}
+
+/* ======================= Contact ======================= */
+.ada-ct {
+  position: relative; isolation: isolate; overflow: hidden;
+  padding: clamp(4rem, 8vw, 6.5rem) 0; background: var(--ada-bg);
+}
+.ada-ct::before {
+  content: ""; position: absolute; z-index: -1;
+  inset-inline-end: -14%; top: -30%; width: 58%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 59, 237, 0.18), transparent 68%);
+  filter: blur(20px); pointer-events: none;
+}
+.ada-ct .head { text-align: center; margin-bottom: clamp(2.2rem, 4vw, 3.2rem); }
+.ada-ct .eyebrow {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.42rem 1.05rem; border-radius: 100px;
+  background: rgba(124, 59, 237, 0.12); border: 1px solid rgba(124, 59, 237, 0.34);
+  color: var(--ada-violet-l); font-size: 0.84rem; font-weight: 700; margin-bottom: 1rem;
+}
+.ada-ct .eyebrow svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ada-ct .h2 { font-size: clamp(1.9rem, 4vw, 2.7rem); font-weight: 900; margin: 0 0 0.7rem; letter-spacing: -0.02em; line-height: 1.3; }
+.ada-ct .h2 b { background: var(--ada-grad); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; }
+.ada-ct .sub { color: var(--ada-mut); font-size: 1.02rem; line-height: 1.9; max-width: 56ch; margin: 0 auto; }
+.ada-ct .cols {
+  display: grid; grid-template-columns: 1.3fr 0.92fr;
+  gap: clamp(1rem, 2vw, 1.5rem); align-items: stretch; max-width: 1030px; margin: 0 auto;
+}
+.ada-ct .card {
+  background: var(--ada-card); border: 1px solid var(--ada-line); border-radius: 22px;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  box-shadow: 0 26px 64px -34px rgba(124, 59, 237, 0.8);
+}
+.ada-ct .form { display: grid; gap: 1rem; }
+.ada-ct .hp { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.ada-ct .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.ada-ct .f { display: grid; gap: 0.42rem; min-width: 0; }
+.ada-ct .f label { font-size: 0.88rem; font-weight: 700; color: #d6d1e2; display: flex; align-items: center; gap: 0.4rem; }
+.ada-ct .f label svg { width: 14px; height: 14px; color: var(--ada-violet-l); fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ada-ct .f label i { font-style: normal; color: var(--ada-violet-l); }
+.ada-ct .f input, .ada-ct .f textarea, .ada-ct .f select {
+  width: 100%; font-family: inherit; font-size: 0.97rem; font-weight: 500; color: var(--ada-txt);
+  background: var(--ada-input); border: 1.5px solid transparent; border-radius: 13px;
+  padding: 0.8rem 1rem;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+.ada-ct .f textarea { resize: vertical; min-height: 112px; line-height: 1.8; }
+.ada-ct .f input::placeholder, .ada-ct .f textarea::placeholder { color: #605a6e; }
+.ada-ct .f input:hover, .ada-ct .f textarea:hover, .ada-ct .f select:hover { border-color: rgba(124, 59, 237, 0.35); }
+.ada-ct .f input:focus, .ada-ct .f textarea:focus, .ada-ct .f select:focus {
+  outline: none; background: #232325; border-color: var(--ada-violet);
+  box-shadow: 0 0 0 4px rgba(124, 59, 237, 0.2);
+}
+.ada-ct .f.bad input, .ada-ct .f.bad textarea, .ada-ct .f.bad select { border-color: #f0607a; background: rgba(240, 96, 122, 0.07); }
+.ada-ct .f.bad input:focus, .ada-ct .f.bad textarea:focus, .ada-ct .f.bad select:focus { box-shadow: 0 0 0 4px rgba(240, 96, 122, 0.16); }
+.ada-ct .err { font-size: 0.8rem; font-weight: 600; color: #f0607a; opacity: 0; transform: translateY(-4px); transition: opacity 0.2s, transform 0.2s; }
+.ada-ct .f.bad .err { opacity: 1; transform: none; }
+.ada-ct .sel { position: relative; display: block; }
+.ada-ct .sel select { appearance: none; -webkit-appearance: none; padding-inline-start: 2.4rem; cursor: pointer; }
+.ada-ct .sel select option { background: #17171a; color: #f5f3fa; }
+.ada-ct .sel > svg {
+  position: absolute; inset-inline-start: 1rem; top: 50%; width: 15px; height: 15px;
+  margin-top: -7px; color: var(--ada-mut); pointer-events: none;
+  fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;
+}
+.ada-ct .btn {
+  position: relative; width: 100%; min-height: 54px; border: none; border-radius: 100px;
+  background: var(--ada-grad); color: #fff; font-family: inherit; font-size: 1.02rem; font-weight: 800;
+  cursor: pointer; overflow: hidden;
+  box-shadow: 0 16px 36px -16px rgba(124, 59, 237, 1);
+  transition: transform 0.24s ease, box-shadow 0.28s ease, opacity 0.24s ease;
+}
+.ada-ct .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 24px 48px -16px rgba(124, 59, 237, 1); }
+.ada-ct .btn:disabled { cursor: not-allowed; opacity: 0.68; transform: none; }
+.ada-ct .btn .lbl { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; }
+.ada-ct .btn .lbl svg { width: 18px; height: 18px; fill: currentColor; }
+.ada-ct .spin {
+  position: absolute; inset: 0; margin: auto; width: 22px; height: 22px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%;
+  display: none; animation: ada-sp 0.7s linear infinite;
+}
+@keyframes ada-sp { to { transform: rotate(360deg); } }
+.ada-ct .btn.go .lbl { visibility: hidden; }
+.ada-ct .btn.go .spin { display: block; }
+.ada-ct .note { font-size: 0.8rem; color: var(--ada-mut-2); line-height: 1.7; margin: 0; }
+.ada-ct .stat { margin: 0; font-size: 0.89rem; font-weight: 600; color: #f0607a; }
+.ada-ct .stat:empty { display: none; }
+.ada-ct .ok { text-align: center; padding: 1.5rem 0.5rem; }
+.ada-ct .ok-m {
+  width: 68px; height: 68px; margin: 0 auto 1.1rem; border-radius: 50%;
+  display: grid; place-items: center; background: var(--ada-grad); color: #fff;
+  box-shadow: 0 16px 34px -14px rgba(124, 59, 237, 1);
+  animation: ada-pop 0.45s cubic-bezier(0.22, 0.9, 0.35, 1.2);
+}
+@keyframes ada-pop { from { transform: scale(0.7); opacity: 0; } }
+.ada-ct .ok-m svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ada-ct .ok h3 { font-size: 1.35rem; margin: 0 0 0.55rem; }
+.ada-ct .ok p { font-size: 0.96rem; color: var(--ada-mut); line-height: 1.85; max-width: 42ch; margin: 0 auto 1.3rem; }
+.ada-ct .acts { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; }
+.ada-ct .sb {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 46px;
+  padding: 0 1.4rem; border-radius: 100px; font-family: inherit; font-size: 0.94rem;
+  font-weight: 700; cursor: pointer; border: 1.5px solid transparent;
+  transition: transform 0.24s, border-color 0.24s;
+}
+.ada-ct .sb-g { background: var(--ada-grad); color: #fff; }
+.ada-ct .sb-p { background: transparent; color: var(--ada-txt); border-color: rgba(124, 59, 237, 0.42); }
+.ada-ct .sb:hover { transform: translateY(-2px); }
+.ada-ct .sb-p:hover { border-color: var(--ada-violet); }
+
+/* ----- side panels ----- */
+.ada-ct .side { display: flex; flex-direction: column; gap: 1rem; }
+.ada-ct .panel { background: var(--ada-card-2); border: 1px solid var(--ada-line); border-radius: 22px; padding: clamp(1.35rem, 2.6vw, 1.7rem); }
+.ada-ct .panel h3 { font-size: 1.12rem; margin: 0 0 0.3rem; }
+.ada-ct .panel .lead { font-size: 0.88rem; color: var(--ada-mut); line-height: 1.75; margin: 0 0 1.15rem; }
+.ada-ct .ch {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: rgba(255, 255, 255, 0.035); border: 1px solid var(--ada-line);
+  border-radius: 15px; padding: 0.8rem 0.95rem; margin-bottom: 0.6rem;
+  transition: transform 0.24s, background 0.24s, border-color 0.24s;
+}
+.ada-ct .ch:last-of-type { margin-bottom: 0; }
+.ada-ct .ch:hover { transform: translateY(-2px); background: rgba(124, 59, 237, 0.1); border-color: rgba(124, 59, 237, 0.42); }
+.ada-ct .ch-i {
+  width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center;
+  background: linear-gradient(145deg, rgba(167, 139, 250, 0.22), rgba(124, 59, 237, 0.14));
+  border: 1px solid rgba(124, 59, 237, 0.3);
+}
+.ada-ct .ch-i svg { width: 19px; height: 19px; stroke: url(#ada-g1); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ada-ct .ch-i svg.fl { fill: url(#ada-g1); stroke: none; }
+.ada-ct .ch-t { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.ada-ct .ch-t b { font-size: 0.94rem; color: var(--ada-txt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ada-ct .ch-t span { font-size: 0.78rem; color: var(--ada-mut); }
+.ada-ct .ch-a { width: 16px; height: 16px; flex: none; color: var(--ada-mut-2); fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.24s; }
+.ada-ct .ch:hover .ch-a { transform: translateX(-3px); }
+.ada-ct .flow { list-style: none; margin: 0; padding: 0; counter-reset: ada-st; }
+.ada-ct .flow li { counter-increment: ada-st; position: relative; padding: 0 2.6rem 0.95rem 0; }
+.ada-ct .flow li:last-child { padding-bottom: 0; }
+.ada-ct .flow li::before {
+  content: counter(ada-st); position: absolute; inset-inline-end: 0; top: 0;
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(124, 59, 237, 0.16); border: 1px solid rgba(124, 59, 237, 0.42);
+  color: var(--ada-violet-l); font-size: 0.78rem; font-weight: 800;
+}
+.ada-ct .flow li:not(:last-child)::after {
+  content: ""; position: absolute; inset-inline-end: 12.5px; top: 30px; bottom: 6px;
+  width: 1px; background: linear-gradient(to bottom, rgba(124, 59, 237, 0.4), transparent);
+}
+.ada-ct .flow b { display: block; font-size: 0.92rem; font-weight: 700; margin-bottom: 2px; }
+.ada-ct .flow span { font-size: 0.83rem; color: var(--ada-mut); line-height: 1.7; }
+.ada-ct .live {
+  display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.1rem;
+  padding: 0.5rem 0.95rem; border-radius: 100px;
+  background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.28);
+  color: var(--ada-ok); font-size: 0.82rem; font-weight: 700;
+}
+.ada-ct .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--ada-ok); box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2); }
+
+/* ======================= Footer ======================= */
+.ada-ft {
+  position: relative; isolation: isolate; overflow: hidden;
+  background: var(--ada-footer); border-top: 1px solid rgba(124, 59, 237, 0.14);
+  padding: clamp(3rem, 6vw, 4.3rem) 0 0;
+}
+.ada-ft::before { content: ""; position: absolute; inset-inline: 0; top: 0; height: 2px; background: var(--ada-grad); opacity: 0.9; }
+.ada-ft .ft-glow {
+  position: absolute; z-index: -1; top: -45%; inset-inline-start: -6%;
+  width: 48%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 59, 237, 0.15), transparent 68%);
+  pointer-events: none;
+}
+.ada-ft .ft-grid { display: grid; grid-template-columns: 1.7fr 1fr 1fr 1.15fr; gap: clamp(1.75rem, 3vw, 3rem); padding-bottom: 2.5rem; }
+.ada-ft .ft-id { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.9rem; }
+.ada-ft .ft-mark {
+  width: 52px; height: 52px; flex: none; border-radius: 16px; display: grid; place-items: center;
+  background: var(--ada-grad); color: #fff; font-weight: 900; font-size: 1.35rem;
+  box-shadow: 0 12px 28px -12px rgba(124, 59, 237, 1); overflow: hidden;
+}
+.ada-ft .ft-mark img { width: 100%; height: 100%; object-fit: cover; }
+.ada-ft .ft-name { display: block; font-size: 1.6rem; font-weight: 900; line-height: 1.2; letter-spacing: -0.01em; }
+.ada-ft .ft-role { display: block; font-size: 0.82rem; color: var(--ada-violet-l); font-weight: 600; margin-top: 1px; }
+.ada-ft .ft-bio { font-size: 0.93rem; line-height: 1.95; color: var(--ada-mut); max-width: 34ch; margin: 0 0 1.2rem; }
+.ada-ft .ft-soc { display: flex; gap: 0.55rem; }
+.ada-ft .ft-soc a {
+  width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px;
+  background: rgba(255, 255, 255, 0.045); border: 1px solid var(--ada-line);
+  transition: transform 0.26s, background 0.26s, border-color 0.26s;
+}
+.ada-ft .ft-soc a svg { width: 19px; height: 19px; stroke: url(#ada-g2); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ada-ft .ft-soc a svg.fl { fill: url(#ada-g2); stroke: none; }
+.ada-ft .ft-soc a:hover { transform: translateY(-3px); background: rgba(124, 59, 237, 0.16); border-color: rgba(124, 59, 237, 0.5); }
+.ada-ft .ft-h { font-size: 0.79rem; font-weight: 900; letter-spacing: 0.13em; color: var(--ada-violet-l); margin: 0 0 1.05rem; }
+.ada-ft .ft-col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.64rem; }
+.ada-ft .ft-col a { color: var(--ada-mut); font-size: 0.94rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.22s, transform 0.22s; }
+.ada-ft .ft-col a::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: rgba(124, 59, 237, 0.5); transition: background 0.22s, transform 0.22s; }
+.ada-ft .ft-col a:hover { color: var(--ada-violet-l); transform: translateX(-4px); }
+.ada-ft .ft-col a:hover::before { background: var(--ada-violet-l); transform: scale(1.5); }
+.ada-ft .ft-cta p { font-size: 0.92rem; line-height: 1.85; color: var(--ada-mut); margin: 0 0 1.05rem; }
+.ada-ft .ft-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 46px; padding: 0 1.3rem; border-radius: 100px;
+  background: var(--ada-grad); color: #fff; font-weight: 800; font-size: 0.93rem;
+  box-shadow: 0 14px 30px -14px rgba(124, 59, 237, 1);
+  transition: transform 0.26s, box-shadow 0.26s;
+}
+.ada-ft .ft-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ada-ft .ft-btn:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -14px rgba(124, 59, 237, 1); }
+.ada-ft .ft-badge { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.95rem; font-size: 0.83rem; color: var(--ada-mut); }
+.ada-ft .ft-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--ada-ok); box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18); }
+.ada-ft .ft-bot {
+  display: flex; flex-wrap: wrap; gap: 0.6rem 1.5rem; align-items: center; justify-content: space-between;
+  padding: 1.35rem 0 1.55rem; border-top: 1px solid var(--ada-line);
+}
+.ada-ft .ft-bot p { margin: 0; font-size: 0.84rem; color: var(--ada-mut-2); }
+.ada-ft .ft-bot .r { display: flex; gap: 1.2rem; align-items: center; }
+.ada-ft .ft-bot .r a { font-size: 0.84rem; color: var(--ada-mut); transition: color 0.22s; }
+.ada-ft .ft-bot .r a:hover { color: var(--ada-violet-l); }
+
+/* ======================= responsive ======================= */
+@media (max-width: 900px) {
+  .ada-ct .cols { grid-template-columns: 1fr; }
+  .ada-ft .ft-grid { grid-template-columns: 1fr 1fr; }
+  .ada-ft .ft-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .ada-ct .row2 { grid-template-columns: 1fr; }
+  .ada-ft .ft-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .ada-ft .ft-bot { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ada-ct *, .ada-ft * { animation: none !important; transition: none !important; }
+}
