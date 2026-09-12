@@ -13,19 +13,34 @@ import { Footer } from "@/components/layout/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background selection:bg-primary/30 selection:text-white">
+    <>
+      {/* Skip link: first stop for keyboard and screen-reader users. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white focus:shadow-lg"
+      >
+        تخطي إلى المحتوى
+      </a>
+
       <Navbar />
-      <Hero />
-      <About />
-      <Skills />
-      <TrustBar />
-      <Services />
-      <WhyMe />
-      <Positioning />
-      <Projects />
-      <Quote />
-      <Contact />
+
+      <main
+        id="main-content"
+        className="min-h-screen bg-background selection:bg-primary/30 selection:text-white"
+      >
+        <Hero />
+        <About />
+        <Skills />
+        <TrustBar />
+        <Services />
+        <WhyMe />
+        <Positioning />
+        <Projects />
+        <Quote />
+        <Contact />
+      </main>
+
       <Footer />
-    </main>
+    </>
   );
 }
