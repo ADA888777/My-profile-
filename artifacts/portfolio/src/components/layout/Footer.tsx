@@ -42,8 +42,15 @@ export function Footer() {
           {/* ---------- brand ---------- */}
           <div className="ft-brand">
             <div className="ft-id">
-              <span className="ft-mark" aria-hidden="true">
-                آ
+              <span className="ft-mark" aria-hidden="true" style={{ display: "grid", placeItems: "center", padding: 0, overflow: "hidden" }}>
+                <img
+                  src="/logo.jpeg"
+                  alt=""
+                  width={52}
+                  height={52}
+                  decoding="async"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.5)" }}
+                />
               </span>
               <span>
                 <span className="ft-name">آدا</span>
