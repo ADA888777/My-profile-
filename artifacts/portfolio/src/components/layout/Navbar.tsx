@@ -43,12 +43,12 @@ export function Navbar() {
         <a href="#home" className="flex items-center gap-3 group" aria-label="العودة للرئيسية">
           <span className="relative overflow-hidden rounded-xl h-10 w-10 border border-primary/20 group-hover:border-primary/60 transition-colors">
             <img
-              src="/logo.svg"
+              src="/logo.jpeg"
               alt=""
               width={40}
               height={40}
               decoding="async"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover scale-150"
             />
           </span>
           <span className="font-display font-bold text-2xl text-foreground group-hover:text-primary transition-colors">
