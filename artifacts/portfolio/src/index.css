@@ -1,40 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* Fonts are loaded from index.html (<link rel="stylesheet">) instead of a CSS
+   @import, because a CSS @import is render-blocking and cannot be preconnected. */
+
 @theme inline {
-  --font-sans: 'IBM Plex Sans Arabic', sans-serif;
-  --font-display: 'Cairo', sans-serif;
+  --font-sans: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: 'Cairo', system-ui, sans-serif;
 
   --color-background: hsl(240 10% 4%);
   --color-foreground: hsl(0 0% 98%);
-  
-  --color-primary: hsl(262 83% 58%);
-  --color-primary-foreground: hsl(0 0% 98%);
-  
+
+  --color-primary: hsl(262 83% 62%);
+  --color-primary-foreground: hsl(0 0% 100%);
+
   --color-secondary: hsl(240 10% 12%);
   --color-secondary-foreground: hsl(0 0% 98%);
-  
+
   --color-muted: hsl(240 10% 12%);
-  --color-muted-foreground: hsl(240 5% 65%);
-  
-  --color-accent: hsl(262 83% 58%);
-  --color-accent-foreground: hsl(0 0% 98%);
-  
+  /* Lightened from 65% -> 76% to clear the 4.5:1 contrast ratio on the dark bg. */
+  --color-muted-foreground: hsl(240 8% 76%);
+
+  --color-accent: hsl(262 83% 62%);
+  --color-accent-foreground: hsl(0 0% 100%);
+
   --color-destructive: hsl(0 84% 60%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  
-  --color-border: hsl(240 10% 15%);
-  --color-input: hsl(240 10% 15%);
-  --color-ring: hsl(262 83% 58%);
-  
+
+  --color-border: hsl(240 10% 18%);
+  --color-input: hsl(240 10% 18%);
+  --color-ring: hsl(262 83% 62%);
+
   --color-card: hsl(240 10% 6%);
   --color-card-foreground: hsl(0 0% 98%);
-  --color-card-border: hsl(240 10% 15%);
+  --color-card-border: hsl(240 10% 18%);
 
   --color-popover: hsl(240 10% 6%);
   --color-popover-foreground: hsl(0 0% 98%);
 
-  --animate-marquee: marquee 30s linear infinite;
+  --animate-marquee: marquee 40s linear infinite;
   --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -46,33 +49,45 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     scroll-behavior: smooth;
+    /* Keeps anchor targets from hiding under the fixed header. */
+    scroll-padding-top: 5.5rem;
   }
 
   body {
     @apply bg-background text-foreground antialiased font-sans overflow-x-hidden;
-    direction: rtl;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     @apply font-bold tracking-tight;
   }
+
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  /* Visible keyboard focus everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(100%); } /* RTL friendly: translating positive X goes left-to-right */
+  from { transform: translateX(0); }
+  /* The list is rendered twice, so 50% of the track width loops seamlessly. */
+  to   { transform: translateX(50%); }
 }
 
-/* Custom Utilities */
 @layer utilities {
   .glass-card {
     @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)];
   }
-  
+
   .glass-panel {
     @apply bg-background/80 backdrop-blur-xl border-b border-white/5;
   }
@@ -83,5 +98,49 @@
 
   .hover-glow {
     @apply transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(124,58,237,0.4)] hover:border-primary/50;
+  }
+
+  /* Keeps Latin strings such as "C#", "C++" and "Node.js" from being reordered
+     by the surrounding RTL paragraph direction. */
+  .bidi-isolate {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  /* Replaces the 1 MB hero-bg.png with a pure-CSS backdrop (0 bytes to download). */
+  .hero-backdrop {
+    background-color: var(--color-background);
+    background-image:
+      radial-gradient(ellipse 75% 55% at 72% 18%, hsl(262 83% 62% / 0.20), transparent 62%),
+      radial-gradient(ellipse 70% 50% at 22% 72%, hsl(243 75% 59% / 0.16), transparent 62%),
+      linear-gradient(to right, hsl(262 83% 70% / 0.055) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(262 83% 70% / 0.055) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 68px 68px, 68px 68px;
+    background-position: center;
+  }
+
+  .hero-fade {
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+  }
+
+  .marquee-track:hover,
+  .marquee-track:focus-within {
+    animation-play-state: paused;
+  }
+}
+
+/* Respect the OS "reduce motion" preference (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
