@@ -11,6 +11,15 @@ out-tsc
 # dependencies
 node_modules
 
+# secrets / environment  (never commit these)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets.json
+
 # IDEs and editors
 /.idea
 .project
@@ -47,3 +56,6 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Netlify
+.netlify/
