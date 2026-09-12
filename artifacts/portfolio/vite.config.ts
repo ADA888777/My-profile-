@@ -16,6 +16,16 @@ if (Number.isNaN(port) || port <= 0) {
 const basePath = process.env.BASE_PATH || "/";
 const isProduction = process.env.NODE_ENV === "production";
 
+// Groups third-party code into a few long-lived chunks instead of one large
+// bundle, so a content change no longer invalidates the whole vendor payload.
+const VENDOR_GROUPS: Array<[string, RegExp]> = [
+  ["react", /node_modules\/(react|react-dom|scheduler)\//],
+  ["motion", /node_modules\/(framer-motion|motion-dom|motion-utils)\//],
+  ["radix", /node_modules\/@radix-ui\//],
+  ["icons", /node_modules\/lucide-react\//],
+  ["query", /node_modules\/@tanstack\//],
+];
+
 export default defineConfig({
   base: basePath,
   plugins: [
@@ -50,17 +60,12 @@ export default defineConfig({
     reportCompressedSize: false,
     rollupOptions: {
       output: {
-        // Splits the single large bundle into long-lived cacheable chunks so a
-        // content change no longer invalidates the whole vendor payload.
         manualChunks(id: string) {
-          if (!id.includes("node_modules")) return undefined;
-          if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils")) {
-            return "motion";
+          const normalized = id.split(path.sep).join("/");
+          if (!normalized.includes("node_modules")) return undefined;
+          for (const [name, pattern] of VENDOR_GROUPS) {
+            if (pattern.test(normalized)) return name;
           }
-          if (id.includes("react-dom") || id.includes("scheduler")) return "react";
-          if (id.includes("@radix-ui")) return "radix";
-          if (id.includes("lucide-react")) return "icons";
-          if (id.includes("@tanstack")) return "query";
           return "vendor";
         },
       },
